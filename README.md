@@ -1,6 +1,6 @@
 # devsearch-score
 
-Our scoring function will be applied to a list of unordered search results and will score to item. This allows us to sort the results such that the best matches will appear at the top of the search results.
+Our scoring function will be applied to a list of unordered search results and will score each item. This allows us to sort the results such that the best matches will appear on the top of the list.
 
 
 ## Idea
