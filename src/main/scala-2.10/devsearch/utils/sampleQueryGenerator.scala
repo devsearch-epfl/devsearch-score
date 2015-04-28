@@ -65,28 +65,28 @@ object sampleQueryGenerator {
 
 
   /**
-   * takes a (header, content) tuple and returns it as SampleQuerySourceFile
+   * takes a (header, content) tuple and returns it as tuples
    * @param headerContent
    * @return
    */
-  private def toSampleSourceFile(headerContent: (Text, Text)): ((String, String), String) = headerContent match {
+  private def toSampleSourceFile(headerContent: (Text, Text)): ((String, String), (String,String)) = headerContent match {
     case (header, content) => {
       val result = HeaderParser.parse(HeaderParser.parseBlobHeader, header.toString)
       if (result.isEmpty) null
       else {
         val metadata = result.get
-        ((metadata.location.user, metadata.location.repoName), content.toString)
+        ((metadata.location.user, metadata.location.repoName), (metadata.location.fileName, content.toString))
       }
     }
   }
 
 
   /**
-   * Reads blobs and extracts sampleSourceFiles.
+   * Reads blobs and extracts sample source files as tuples.
    * @param sc
    * @return
    */
-  private def getSampleSourceFiles(implicit sc: SparkContext): RDD[((String, String), String)] = {
+  private def getHeaderSnippetPairs(implicit sc: SparkContext): RDD[(Text, Text)] = {
     // Go through each language directory and list all the contained blobs
     val fs = FileSystem.get(new java.net.URI(blobPath + "/*"), new Configuration())
     val blobPathList = fs.listStatus(new Path(blobPath))
@@ -103,7 +103,7 @@ object sampleQueryGenerator {
       )
     )
 
-    headerSnippetPairs map toSampleSourceFile
+    headerSnippetPairs
   }
 
 
@@ -113,11 +113,13 @@ object sampleQueryGenerator {
 
     val ranking = getRanking
 
-    val sampleQuerySourceFiles = getSampleSourceFiles
+    val sampleQuerySourceFiles = getHeaderSnippetPairs map toSampleSourceFile
 
 
     //joined is of the form ((String, String), (Double, String))
     val joined = ranking.join(sampleQuerySourceFiles)
+
+
 
 
 
@@ -136,7 +138,7 @@ object sampleQueryGenerator {
     println("\n\n\n\n\n\n\n\n\n")
     for (x <- best)
       x match{
-        case ((owner, repo),(rank, code)) => println(owner + ", " + repo + ": " + rank)
+        case ((owner, repo),(rank, (path, code))) => println(owner + ", " + repo + ", " + path + ": " + rank)
       }
   }
 
