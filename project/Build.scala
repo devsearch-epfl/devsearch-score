@@ -3,10 +3,10 @@ import sbt._
 object DevSearchScore extends Build {
 
   lazy val root = Project("root", file("."))
-    //.dependsOn(astParser % "compile->compile;test->test")
+    .dependsOn(devsearchLearning % "compile->compile;test->test")
 
   //add dependencies as follows...
-  lazy val astCommit = "66821dfc27d217bd9f4828cd3701ffa2bf1f295a"
-  lazy val astParser = RootProject(uri(s"git://github.com/devsearch-epfl/devsearch-ast.git#$astCommit"))
+  lazy val learningCommit = "aeee5a232e14d90e98961e74abe41aa8ce2f6649"
+  lazy val devsearchLearning = RootProject(uri(s"git://github.com/devsearch-epfl/devsearch-learning.git#$learningCommit"))
 }
 
